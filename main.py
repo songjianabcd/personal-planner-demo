@@ -4546,10 +4546,10 @@ def _vbs站点截图目录(脚本键: str) -> Path:
 
 # ---------- 报表下载（2026-10-23 用户需求）----------
 # 用户原话：「报表的命名和保存位置，参考的下载报表的 VBS 代码（D:\ai_project\GUI\ZPP_PO\下载报表同用.vbs），
-#            我固定写成了 ZB02 加时间轴，我希望你根据功能 + 时间戳来保存」「C:\Users\u3854\Desktop\web_xls」。
+#            我固定写成了 ZB02 加时间轴，我希望你根据功能 + 时间戳来保存」「C:\Users\demo_user\Desktop\web_xls」。
 # 命名 = <功能名>_<YYYYMMDD_HHMMSS>.xls —— 由后端按次生成并注入运行时 VBS，
 # 保证「磁盘上的文件」与「邮件附件」同名同源（用户要求：两个开关都开时报表作为附件发邮件）。
-SAPQ_下载目录 = Path(r"C:\Users\u3854\Desktop\web_xls")
+SAPQ_下载目录 = Path(r"C:\Users\demo_user\Desktop\web_xls")
 SAPQ_报表后缀 = ".xls"
 SAPQ_报表前缀 = {"zb02": "Zb02", "zb03": "Zb03", "zpp_po": "Zpp_Po", "zpp_pur": "Zpp_Pur", "co28": "CO28",
                  "marc": "Marc", "mara": "Mara", "eord": "Eord", "zbom": "Zpp_Bom", "resb": "Resb",
@@ -4571,7 +4571,7 @@ def _sapq报表文件名(脚本键: str, 时刻: "datetime | None" = None) -> st
 def _sapq解析下载目录(文本: "str | None") -> Path:
     """页面「下载路径」框的值 → 落点目录（用户 2026-10-23：可自定义，优先级高于代码里的默认路径）。
 
-    留空 = 用代码默认（SAPQ_下载目录 = C:/Users/u3854/Desktop/web_xls）。
+    留空 = 用代码默认（SAPQ_下载目录 = C:/Users/demo_user/Desktop/web_xls）。
     支持环境变量（%USERPROFILE%）与 ~；相对路径或建不出来的路径一律**回落默认**并记账，
     绝不因为路径写错就让整次执行失败（用户口径：默认路径兜底，自定义优先）。
     """
@@ -5048,7 +5048,7 @@ class VbsRunRequest(BaseModel):
     # 「仅下载报表」结果邮件，只留任务最后那封汇总通知；默认 True = 网页手动执行照旧。
     报表邮件: bool = True
     # 🔴🔴 2026-11-06 用户明令：「MESE限速器以及MESE安全钳 我不需要你发邮件给我」
-    #   True = 本次执行一律不调用发信（结果邮件 / 「仅报表下载也发一封给 songjian」的兜底分支
+    #   True = 本次执行一律不调用发信（结果邮件 / 「仅报表下载也发一封给 demo_user」的兜底分支
     #          / 失败邮件，全部掐掉），只由 MESE 两条线内部驱动 SAP 下载时传入。
     #   🔴 默认 False：SAP 查询页手动执行、计划任务、CO28 的邮件口径一律不变，绝不扩散。
     不发本人邮件: bool = False
@@ -5629,7 +5629,7 @@ def _发送查询结果邮件(脚本键: str, 正常: bool, 被中断: bool, 输
         ③ 两份都没有才写「无」，并且正文里如实写清**实际原因与目录**，不再拿开关状态当借口。
 
     收件人 = 页面「收件人」框（可多个，逗号/分号/空格分隔）；留空回落 dws 默认 demo.user65@example.com。
-    下载目录 = 页面「下载路径」框（自定义优先，留空 = 代码默认 C:/Users/u3854/Desktop/web_xls）。
+    下载目录 = 页面「下载路径」框（自定义优先，留空 = 代码默认 C:/Users/demo_user/Desktop/web_xls）。
     注意：本函数里另有一个局部变量 目录 = 截图目录，所以参数特意叫 下载目录，避免被覆盖。
     """
     _, 显示名, 事务码, _, _ = VBS_SCRIPTS_SITE[脚本键]
@@ -7471,8 +7471,8 @@ def 下载结果(ds_id: str, filename: Optional[str] = Query(None),
 
 # ============ APD 看板共用数据管线（MySQL sap_table.03_apd） ============
 
-APD_DB = dict(host="127.0.0.1", port=3306, user="u3854",
-              password="u38544253", database="sap_table", charset="utf8mb4")
+APD_DB = dict(host="127.0.0.1", port=3306, user="demo_user",
+              password="DEMO_DB_PASSWORD", database="sap_table", charset="utf8mb4")
 _APD_CACHE = {"df": None, "ts": 0.0}
 _APD_TTL = 120.0
 _APD_LOCK = threading.Lock()
@@ -8518,7 +8518,7 @@ def apd22_mega_clamp(range: str = "default", start: str = "", end: str = ""):
 
 # ---- 3号箱APD及安全钳看板 数据落地：MySQL `03#箱databoard` 目录（全量刷新重建） ----
 
-APD22_TARGET_DB = dict(host="127.0.0.1", port=3306, user="u3854", password="u38544253",
+APD22_TARGET_DB = dict(host="127.0.0.1", port=3306, user="demo_user", password="DEMO_DB_PASSWORD",
                        database="03#箱databoard", charset="utf8mb4")
 
 _APD22_TABLES_SQL = {
@@ -8916,7 +8916,7 @@ MESE_COMBINE_SHEET = "MESE临时（不齐-发群）"
 #   总闸：MESE 两条线一律不往演示用户本人邮箱（demo.user70@example.com）发任何邮件。
 #   实证：2026-11-06 10:45~10:46 连发 5 封「Zpp_Po（ZPP_PO） 查询结果【成功】」
 #         /「SQ00配方查询（ZB001） 查询结果【成功】」，日志对应
-#         「zpp_po 报表邮件（下载开关触发，发 songjian）」—— 是「呼报制作」内部跑 SAP
+#         「zpp_po 报表邮件（下载开关触发，发 demo_user）」—— 是「呼报制作」内部跑 SAP
 #         三张原表时，VbsRunRequest.报表邮件 默认 True 触发的自发自收结果邮件。
 #   🔴 只掐「发给本人」的邮件：发给车间同事的业务邮件（mese_pipeline.py 的 MAIL_TO_*）
 #      照旧保留（用户 11-06 明令「发邮件的代码不要改」），钉钉单聊也照旧。
@@ -10348,8 +10348,8 @@ def _trig_run_app(app_id: str, cfg: dict = None) -> dict:
 #   ③ 护栏：库里已有 ≥100 行而本次读到不足其一半 → 整任务拒绝覆盖，两张表都不动；
 #   ④ 两阶段：两张 __tmp 都建好、灌完、逐格回读比对通过，才统一 DROP 旧表 + RENAME，失败不毁旧表。
 # 注意：只覆盖本任务指定的两张表，绝不扩散到 03#箱databoard 里「手工备份到 MySQL」的同名页签表。
-MESE_SUMMARY_MYSQL_DB = dict(host="127.0.0.1", port=3306, user="u3854",
-                             password="u38544253", database="sap_table", charset="utf8mb4")
+MESE_SUMMARY_MYSQL_DB = dict(host="127.0.0.1", port=3306, user="demo_user",
+                             password="DEMO_DB_PASSWORD", database="sap_table", charset="utf8mb4")
 MESE_SUMMARY_MYSQL_TARGETS = (
     (MESE_SAFETY_STORE_PATH, MESE_SAFETY_SHEET, "MESE_125", "MESE安全钳汇总"),
     (MESE_LIMITER_STORE_PATH, MESE_LIMITER_SHEET, "MESE_115", "MESE限速器汇总"),
